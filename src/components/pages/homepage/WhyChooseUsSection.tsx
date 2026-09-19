@@ -248,6 +248,7 @@ interface Feature {
 }
 
 interface OilPrice {
+  capacity:string;
   price: string;
   label: string;
 }
@@ -314,18 +315,19 @@ const circles: CircleConfig[] = [
     serviceName: "Tire Change",
     label: "Tire Change",
 
-    price: "$499.99",
-    sub: "Including Installation & Balancing",
-    extra: "Starts From",
+    price: "$89",
+    sub: "On Rims = $49",
+    extra: "Off Rims",
 
-    servicePrice: "499.99",
+    servicePrice: "89",
     planType: "Tire Service",
   },
 
+
   {
     image: oilc,
-    serviceName: "Full Synthetic Oil Change",
-    label: "Full Synthetic Oil Change",
+    serviceName: "Full Synthetic Mobil Oil Change",
+    label: "Full Synthetic Mobil Oil Change",
 
     price: null,
     sub: null,
@@ -336,12 +338,15 @@ const circles: CircleConfig[] = [
 
     oilPrices: [
       {
+        capacity: "Up to 5L",
         price: "$79.99",
-        label: "Excluding Filter",
+        label: "Including Filter,Fluid check,Quick brake inspection,Tire pressure check",
       },
+
       {
+        capacity: "More than 5L",
         price: "$89.99",
-        label: "Including Filter",
+        label: "Including Filter,Fluid check,Quick brake inspection,Tire pressure check",
       },
     ],
   },
@@ -387,7 +392,7 @@ const CircleBadge: React.FC<CircleProps> = ({ circle, onClick }) => (
 
     <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center text-center px-3">
       {/* Label */}
-      <p className="text-white text-sm font-black leading-tight mt-1">
+      <p className="text-white text-[10px] md:text-xs font-black leading-tight mt-1 max-w-[90%] break-words">
         {circle.label}
       </p>
 
@@ -396,10 +401,17 @@ const CircleBadge: React.FC<CircleProps> = ({ circle, onClick }) => (
         <>
           {circle.oilPrices.map((op, i) => (
             <div key={i} className="mt-1">
-              <p className="text-cyan-400 text-2xl font-black">{op.price}</p>
-              <p className="text-white text-sm font-bold">{op.label}</p>
+              <p className="text-white text-[10px] font-bold">{op.capacity}</p>
+              <p className="text-cyan-400 text-xl md:text-2xl font-black leading-none">{op.price}</p>
+              <p className="text-white text-[10px] font-bold">{op.label}</p>
             </div>
           ))}
+          {/* <div className="mt-2 text-left w-full px-2">
+            <p className="text-white text-[9px] font-semibold">• Filter</p>
+            <p className="text-white text-[9px] font-semibold">• Fluid check</p>
+            <p className="text-white text-[9px] font-semibold">• Quick brake inspection</p>
+            <p className="text-white text-[9px] font-semibold">• Tire pressure check</p>
+          </div> */}
         </>
       ) : (
         <>

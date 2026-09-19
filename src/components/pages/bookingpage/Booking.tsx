@@ -41,6 +41,8 @@ interface BookingForm {
   service_name: string;
   service_price: string;
   planType: string;
+  tire_option: "" | "Off Rims" | "On Rims";
+  oil_capacity: "" | "Up to 5L" | "More than 5L";
   addOns: string[];
   vehicle_type: "" | "Sedan" | "SUV" | "Truck/Van";
 
@@ -64,6 +66,8 @@ const initialForm: BookingForm = {
   service_name: "",
   service_price: "",
   planType: "",
+  tire_option: "",
+  oil_capacity: "",
   addOns: [],
   vehicle_type: "",
   booking_date: "",
@@ -120,6 +124,37 @@ export default function Booking() {
     planType: planTypeFromState || "",
   });
 
+  const normalizeServiceName = (value: string) =>
+    value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const getDefaultPlanType = (serviceName: string) => {
+    const normalized = normalizeServiceName(serviceName);
+
+    if (normalized.includes("rustproofing") || normalized.includes("rust") && normalized.includes("proofing")) {
+      return "Rust Proofing";
+    }
+
+    return "";
+  };
+
+  const formatMoney = (value: string) => {
+    const trimmed = value?.trim?.() ?? "";
+
+    if (!trimmed) return "";
+
+    return trimmed.startsWith("$") ? trimmed : `$${trimmed}`;
+  };
+
+  const isTireService =
+    normalizeServiceName(form.service_name).includes("tirechange") ||
+    normalizeServiceName(serviceNameFromState || "").includes("tirechange");
+
+  const isOilService =
+    normalizeServiceName(form.service_name).includes("oilchange") ||
+    normalizeServiceName(serviceNameFromState || "").includes("oilchange") ||
+    normalizeServiceName(form.service_name).includes("fullsyntheticmobiloilchange") ||
+    normalizeServiceName(serviceNameFromState || "").includes("fullsyntheticmobiloilchange");
+
   const [, setServiceName] = useState<string>(
     serviceNameFromState || "",
   );
@@ -150,11 +185,14 @@ export default function Booking() {
   /* ---------- UPDATE FORM FROM STATE ---------- */
 
   useEffect(() => {
+    const resolvedPlanType =
+      planTypeFromState || getDefaultPlanType(serviceNameFromState || "");
+
     setForm((prev) => ({
       ...prev,
       service_name: serviceNameFromState || "",
-      service_price: servicePriceFromState || "",
-      planType: planTypeFromState || "",
+      service_price: formatMoney(servicePriceFromState || ""),
+      planType: resolvedPlanType,
     }));
 
     setServiceName(serviceNameFromState || "");
@@ -390,12 +428,7 @@ export default function Booking() {
   /* ---------- RESET FORM ---------- */
 
   const resetForm = () => {
-    setForm({
-      ...initialForm,
-      service_name: serviceNameFromState || "",
-      service_price: servicePriceFromState || "",
-      planType: planTypeFromState || "",
-    });
+    setForm({ ...initialForm });
 
     setStatus({
       type: "",
@@ -408,7 +441,7 @@ export default function Booking() {
 
     setIsOpen(false);
 
-    setServiceName(serviceNameFromState || "");
+    setServiceName("");
   };
 
   /* ---------- VALIDATION ---------- */
@@ -416,10 +449,16 @@ export default function Booking() {
   const validate = (): string | null => {
     if (!form.service_name) return "Select a service";
 
+    if (isTireService && !form.tire_option)
+      return "Select tire option";
+
+    if (isOilService && !form.oil_capacity)
+      return "Select oil capacity";
+
     if (!form.booking_date) return "Select date";
 
     if (!form.booking_time) return "Select time";
-if (!form.vehicle_type) return "Select vehicle type";
+    if (!form.vehicle_type) return "Select vehicle type";
     if (!form.customer_name.trim()) return "Enter name";
 
     if (!/^\d{10,12}$/.test(form.customer_phone))
@@ -592,14 +631,24 @@ if (!form.vehicle_type) return "Select vehicle type";
             (s) => s.service_name === value,
           );
 
+          const selectedServiceName = selected?.service_name || "";
+          const selectedIsTire = normalizeServiceName(selectedServiceName).includes("tirechange");
+          const selectedIsOil =
+            normalizeServiceName(selectedServiceName).includes("oilchange") ||
+            normalizeServiceName(selectedServiceName).includes("fullsyntheticmobiloilchange");
+          const resolvedPlanType =
+            selected?.planType || getDefaultPlanType(selectedServiceName);
+
           setForm((prev) => ({
             ...prev,
-            service_name: selected?.service_name || "",
-            service_price: selected?.service_price || "",
-            planType: selected?.planType || "",
+            service_name: selectedServiceName,
+            service_price: formatMoney(selected?.service_price || ""),
+            planType: resolvedPlanType,
+            tire_option: selectedIsTire ? prev.tire_option : "",
+            oil_capacity: selectedIsOil ? prev.oil_capacity : "",
           }));
 
-          setServiceName(selected?.service_name || "");
+          setServiceName(selectedServiceName);
         }}
       >
         {/* SELECT BUTTON */}
@@ -648,6 +697,96 @@ if (!form.vehicle_type) return "Select vehicle type";
     )}
   </Field>
 </div>
+
+            {isTireService && (
+              <div className="grid grid-cols-1 gap-5">
+                <Field label="Tire Option *" icon="🛞">
+                  <Select
+                    value={form.tire_option}
+                    onValueChange={(value) => {
+                      const tireOption = value as "Off Rims" | "On Rims";
+
+                      setForm((prev) => ({
+                        ...prev,
+                        tire_option: tireOption,
+                        planType: tireOption,
+                        service_price:
+                          tireOption === "On Rims"
+                            ? "$49"
+                            : tireOption === "Off Rims"
+                              ? "$89"
+                              : prev.service_price,
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="w-full !h-12 rounded-xl bg-slate-950/60 border border-cyan-500/30 hover:border-cyan-400/60 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-gray-200 px-3 transition-all duration-300">
+                      <SelectValue placeholder="Choose tire option" />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-slate-900 border border-cyan-500/30 rounded-xl">
+                      <SelectItem
+                        value="Off Rims"
+                        className="text-gray-200 focus:bg-cyan-500/20 focus:text-cyan-300"
+                      >
+                        Off Rims
+                      </SelectItem>
+
+                      <SelectItem
+                        value="On Rims"
+                        className="text-gray-200 focus:bg-cyan-500/20 focus:text-cyan-300"
+                      >
+                        On Rims
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            )}
+
+            {isOilService && (
+              <div className="grid grid-cols-1 gap-5">
+                <Field label="Oil Capacity *" icon="🛢️">
+                  <Select
+                    value={form.oil_capacity}
+                    onValueChange={(value) => {
+                      const oilOption = value as "Up to 5L" | "More than 5L";
+
+                      setForm((prev) => ({
+                        ...prev,
+                        oil_capacity: oilOption,
+                        planType: oilOption,
+                        service_price:
+                          oilOption === "Up to 5L"
+                            ? "$79.99"
+                            : oilOption === "More than 5L"
+                              ? "$89.99"
+                              : prev.service_price,
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="w-full !h-12 rounded-xl bg-slate-950/60 border border-cyan-500/30 hover:border-cyan-400/60 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-gray-200 px-3 transition-all duration-300">
+                      <SelectValue placeholder="Choose oil capacity" />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-slate-900 border border-cyan-500/30 rounded-xl">
+                      <SelectItem
+                        value="Up to 5L"
+                        className="text-gray-200 focus:bg-cyan-500/20 focus:text-cyan-300"
+                      >
+                        Up to 5L
+                      </SelectItem>
+
+                      <SelectItem
+                        value="More than 5L"
+                        className="text-gray-200 focus:bg-cyan-500/20 focus:text-cyan-300"
+                      >
+                        More than 5L
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            )}
 
             {/* {serviceName !== "Monthly Automatic Car Wash" && ( */}
             <div className="grid grid-cols-1 gap-5">
@@ -905,7 +1044,7 @@ if (!form.vehicle_type) return "Select vehicle type";
                   </Field>
                 </div>
 
-                <Field label="Additional Notes *" icon="📝">
+                <Field label="Additional Notes " icon="📝">
                   <Textarea
                     value={form.customer_note}
                     onChange={(e) =>

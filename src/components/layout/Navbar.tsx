@@ -210,6 +210,7 @@ const Navbar = () => {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Services", href: "/services" },
+    { name: "Rust Proofing", href: "/rust-proofing" },
     { name: "Packages", type: "dropdown" },
     { name: "Booking System", href: "/booking" },
     { name: "Customers", href: "/login" },

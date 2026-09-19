@@ -19,6 +19,7 @@ import Payment from "./components/pages/payment/CheckoutPage";
 import PaymentSuccess from "./components/pages/SuccessOrFailed/PaymentSuccess";
 import PaymentFailed from "./components/pages/SuccessOrFailed/PaymentFailed";
 import BarCode from "./components/pages/Barcode/BarCode";
+import RustProofing from "./components/pages/rustproofing/RustProofing";
 
 function App() {
   const location = useLocation();
@@ -38,6 +39,11 @@ function App() {
       title: "Services | ranacarwashandtires",
       description:
         "Explore professional car wash, detailing, and tire services we offer.",
+    },
+    "/rust-proofing": {
+      title: "Rust Proofing Kingston ON | Rana Car Wash & Tires",
+      description:
+        "Professional oil-based rust proofing and undercoating in Kingston, ON for only $69 plus tax.",
     },
     "/booking": {
       title: "Book Now | ranacarwashandtires",
@@ -102,6 +108,7 @@ function App() {
           <Route path="/" index element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/rust-proofing" element={<RustProofing />} />
           <Route path="/packages/detailing" element={<Packages />} />
           <Route path="/packages/monthly" element={<MonthlySection />} />
           <Route path="/booking" element={<Booking />} />
