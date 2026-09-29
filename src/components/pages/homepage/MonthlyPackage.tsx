@@ -77,7 +77,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
             serviceId: tier.id,
             planType: tier.planType,
             serviceName: tier.name,
-            servicePrice: tier.price,
+            servicePrice: `Starting at $${tier.price}`,
           }}
           className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg w-full text-center"
         >

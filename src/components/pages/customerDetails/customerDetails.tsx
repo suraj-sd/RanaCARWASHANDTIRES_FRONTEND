@@ -287,7 +287,9 @@ const handleComplete = async (id: string) => {
                     <td>{item.planType}</td>
                     {/* <td>{item.service_price}</td> */}
                     <td>
-  {item.planType === "Monthly Plan" || item.planType === "Basic Wash" || item.planType === "Tire Service" || item.planType === "Oil Change"
+  {item.planType === "Monthly Plan" && item.service_price.trim().toLowerCase().startsWith("starting at ")
+    ? item.service_price
+    : item.planType === "Monthly Plan" || item.planType === "Basic Wash" || item.planType === "Tire Service" || item.planType === "Oil Change"
     ? `$${item.service_price}`
     : item.service_price}
 </td>

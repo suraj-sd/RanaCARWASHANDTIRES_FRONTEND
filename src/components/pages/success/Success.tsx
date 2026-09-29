@@ -109,7 +109,11 @@ const Success = () => {
 
           <div>
             <p className="text-gray-500">Amount</p>
-            <p className="font-medium">${booking?.service_price}</p>
+            <p className="font-medium">
+              {booking?.service_price?.trim().toLowerCase().startsWith("starting at ")
+                ? booking.service_price
+                : `$${booking?.service_price}`}
+            </p>
           </div>
         </div>
 

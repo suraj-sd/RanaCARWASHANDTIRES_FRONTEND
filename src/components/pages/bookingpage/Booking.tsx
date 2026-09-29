@@ -137,12 +137,14 @@ export default function Booking() {
     return "";
   };
 
-  const formatMoney = (value: string) => {
-    const trimmed = value?.trim?.() ?? "";
+  const formatMoney = (value: string | number) => {
+    const trimmed = String(value ?? "").trim();
 
     if (!trimmed) return "";
 
-    return trimmed.startsWith("$") ? trimmed : `$${trimmed}`;
+    return trimmed.startsWith("$") || trimmed.toLowerCase().startsWith("starting at ")
+      ? trimmed
+      : `$${trimmed}`;
   };
 
   const isTireService =
